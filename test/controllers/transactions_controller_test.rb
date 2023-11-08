@@ -8,7 +8,7 @@ class TransactionsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should persist a valid transaction' do
     assert_difference('Transaction.count') do
-      post transactions_url, params: { transaction: @payload }, as: :json
+      post transactions_url, params: @payload, as: :json
     end
 
     assert_response :created
@@ -18,7 +18,7 @@ class TransactionsControllerTest < ActionDispatch::IntegrationTest
     @payload[:transaction_id] = nil
 
     assert_no_difference('Transaction.count') do
-      post transactions_url, params: { transaction: @payload }, as: :json
+      post transactions_url, params: @payload, as: :json
     end
 
     assert_response :unprocessable_entity
