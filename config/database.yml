@@ -15,10 +15,10 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
   username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
   password: <%= ENV.fetch("POSTGRES_PASSWORD") { "postgres" } %>
   reconnect: true
-  host: localhost
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
@@ -84,5 +84,3 @@ test:
 production:
   <<: *default
   database: cloudwalk_risk_api_production
-  username: cloudwalk_risk_api
-  password: <%= ENV["CLOUDWALK_RISK_API_DATABASE_PASSWORD"] %>
