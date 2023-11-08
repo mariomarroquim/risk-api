@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_07_182255) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_08_144920) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -25,7 +25,11 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_07_182255) do
     t.boolean "has_cbk"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["card_number"], name: "index_transactions_on_card_number"
+    t.index ["created_at"], name: "index_transactions_on_created_at"
+    t.index ["merchant_id"], name: "index_transactions_on_merchant_id"
     t.index ["transaction_id"], name: "index_transactions_on_transaction_id", unique: true
+    t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
 end
