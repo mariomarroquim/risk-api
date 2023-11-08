@@ -1,6 +1,3 @@
-ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-require 'rails/test_help'
 require 'simplecov'
 
 SimpleCov.profiles.define 'custom_coverage' do
@@ -12,6 +9,10 @@ SimpleCov.profiles.define 'custom_coverage' do
 end
 
 SimpleCov.start 'custom_coverage'
+
+ENV['RAILS_ENV'] ||= 'test'
+require_relative '../config/environment'
+require 'rails/test_help'
 
 module ActiveSupport
   class TestCase
