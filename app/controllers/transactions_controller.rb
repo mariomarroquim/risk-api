@@ -1,4 +1,5 @@
 class TransactionsController < ApplicationController
+  # TODO: Fix input/output accordingly to the specs
   def create
     @transaction = Transaction.new(transaction_params)
 
