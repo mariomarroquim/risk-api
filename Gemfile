@@ -43,6 +43,9 @@ end
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+
+  # Check code for security issues
+  gem 'brakeman', require: false
 end
 
 group :production do
