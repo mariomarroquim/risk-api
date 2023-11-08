@@ -91,11 +91,14 @@ GEM
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
+    descriptive-statistics (2.2.0)
     docile (1.4.0)
     drb (2.2.0)
       ruby2_keywords
     erubi (1.12.0)
     globalid (1.2.1)
+      activesupport (>= 6.1)
+    groupdate (6.4.0)
       activesupport (>= 6.1)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
@@ -242,6 +245,8 @@ DEPENDENCIES
   brakeman
   bundler-audit
   debug
+  descriptive-statistics
+  groupdate
   lograge
   pg (~> 1.1)
   puma (>= 5.0)
