@@ -6,6 +6,7 @@ SimpleCov.profiles.define 'custom_coverage' do
   add_filter 'app/channels'
   add_filter 'app/jobs'
   add_filter 'app/mailers'
+  add_filter 'app/views'
 end
 
 SimpleCov.start 'custom_coverage'

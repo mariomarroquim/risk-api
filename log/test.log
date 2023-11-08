@@ -1,0 +1,244 @@
+  [1m[36mActiveRecord::InternalMetadata Load (1.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "transactions" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (1.0ms)[0m  [1m[31mDELETE FROM "transactions";
+INSERT INTO "transactions" ("id", "transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES (822834886, 1, 1, 1, '434505******9116', '2023-11-07 15:22:55', 1.5, 1, FALSE, '2023-11-08 01:11:42.981171', '2023-11-08 01:11:42.981171')[0m
+  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "transactions" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (3.3ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_constraint SET convalidated=false WHERE conname = ''%I'' AND connamespace::regnamespace = ''%I''::regnamespace; ALTER TABLE %I.%I VALIDATE CONSTRAINT %I;',
+    constraint_name,
+    table_schema,
+    table_schema,
+    table_name,
+    constraint_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(without_a_required_attribute)
+----------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------
+TransactionTest: test_should_persist_a_valid_transaction
+--------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.8ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:42.981171"], ["updated_at", "2023-11-08 01:11:42.981171"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------------------------
+TransactionTest: test_should_set_the_has_cbk_after_creation
+-----------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (1.1ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:42.981171"], ["updated_at", "2023-11-08 01:11:42.981171"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_duplicated_transaction_ID)
+------------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:42.981171"], ["updated_at", "2023-11-08 01:11:42.981171"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_negative_amount)
+--------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_zero_amount)
+----------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.4ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_future_transaction_date)
+----------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------------------------
+TransactionsControllerTest: test_should_not_persist_an_invalid_transaction
+--------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Count (0.4ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+Started POST "/transactions" for 127.0.0.1 at 2023-11-07 22:11:43 -0300
+Processing by TransactionsController#create as JSON
+  Parameters: {"transaction"=>{"id"=>822834886, "transaction_id"=>nil, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:42.981Z", "updated_at"=>"2023-11-08T01:11:42.981Z"}}
+[31mUnpermitted parameters: :id, :has_cbk, :created_at, :updated_at. Context: { controller: TransactionsController, action: create, request: #<ActionDispatch::Request:0x00007f67f6c95508>, params: {"transaction"=>{"id"=>822834886, "transaction_id"=>nil, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:42.981Z", "updated_at"=>"2023-11-08T01:11:42.981Z"}, "controller"=>"transactions", "action"=>"create"} }[0m
+Completed 422 Unprocessable Entity in 16ms (Views: 2.4ms | ActiveRecord: 0.0ms | Allocations: 6314)
+  [1m[36mCACHE Transaction Count (0.0ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------------------------------
+TransactionsControllerTest: test_should_persist_a_valid_transaction
+-------------------------------------------------------------------
+  [1m[36mTransaction Load (0.2ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Count (0.3ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+Started POST "/transactions" for 127.0.0.1 at 2023-11-07 22:11:43 -0300
+Processing by TransactionsController#create as JSON
+  Parameters: {"transaction"=>{"id"=>822834886, "transaction_id"=>35363455, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:42.981Z", "updated_at"=>"2023-11-08T01:11:42.981Z"}}
+[31mUnpermitted parameters: :id, :has_cbk, :created_at, :updated_at. Context: { controller: TransactionsController, action: create, request: #<ActionDispatch::Request:0x00007f67f6ab79e8>, params: {"transaction"=>{"id"=>822834886, "transaction_id"=>35363455, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:42.981Z", "updated_at"=>"2023-11-08T01:11:42.981Z"}, "controller"=>"transactions", "action"=>"create"} }[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:43.241940"], ["updated_at", "2023-11-08 01:11:43.241940"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+Completed 201 Created in 5ms (Views: 0.6ms | ActiveRecord: 1.4ms | Allocations: 1164)
+  [1m[36mTransaction Count (0.4ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "transactions" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (1.1ms)[0m  [1m[31mDELETE FROM "transactions";
+INSERT INTO "transactions" ("id", "transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES (822834886, 1, 1, 1, '434505******9116', '2023-11-07 15:22:55', 1.5, 1, FALSE, '2023-11-08 01:11:49.852883', '2023-11-08 01:11:49.852883')[0m
+  [1m[36mTRANSACTION (0.9ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "transactions" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (4.5ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_constraint SET convalidated=false WHERE conname = ''%I'' AND connamespace::regnamespace = ''%I''::regnamespace; ALTER TABLE %I.%I VALIDATE CONSTRAINT %I;',
+    constraint_name,
+    table_schema,
+    table_schema,
+    table_name,
+    constraint_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------------------------
+TransactionsControllerTest: test_should_not_persist_an_invalid_transaction
+--------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Count (0.5ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+Started POST "/transactions" for 127.0.0.1 at 2023-11-07 22:11:49 -0300
+Processing by TransactionsController#create as JSON
+  Parameters: {"transaction"=>{"id"=>822834886, "transaction_id"=>nil, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:49.852Z", "updated_at"=>"2023-11-08T01:11:49.852Z"}}
+[31mUnpermitted parameters: :id, :has_cbk, :created_at, :updated_at. Context: { controller: TransactionsController, action: create, request: #<ActionDispatch::Request:0x00007f303aad0338>, params: {"transaction"=>{"id"=>822834886, "transaction_id"=>nil, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:49.852Z", "updated_at"=>"2023-11-08T01:11:49.852Z"}, "controller"=>"transactions", "action"=>"create"} }[0m
+Completed 422 Unprocessable Entity in 15ms (Views: 2.4ms | ActiveRecord: 0.0ms | Allocations: 6668)
+  [1m[36mCACHE Transaction Count (0.0ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------------------------------
+TransactionsControllerTest: test_should_persist_a_valid_transaction
+-------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Count (0.3ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+Started POST "/transactions" for 127.0.0.1 at 2023-11-07 22:11:50 -0300
+Processing by TransactionsController#create as JSON
+  Parameters: {"transaction"=>{"id"=>822834886, "transaction_id"=>35363455, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:49.852Z", "updated_at"=>"2023-11-08T01:11:49.852Z"}}
+[31mUnpermitted parameters: :id, :has_cbk, :created_at, :updated_at. Context: { controller: TransactionsController, action: create, request: #<ActionDispatch::Request:0x00007f303a902948>, params: {"transaction"=>{"id"=>822834886, "transaction_id"=>35363455, "merchant_id"=>1, "user_id"=>1, "card_number"=>"434505******9116", "transaction_date"=>"2023-11-07T15:22:55.000Z", "transaction_amount"=>1.5, "device_id"=>1, "has_cbk"=>false, "created_at"=>"2023-11-08T01:11:49.852Z", "updated_at"=>"2023-11-08T01:11:49.852Z"}, "controller"=>"transactions", "action"=>"create"} }[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.8ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:50.049919"], ["updated_at", "2023-11-08 01:11:50.049919"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+Completed 201 Created in 6ms (Views: 0.6ms | ActiveRecord: 1.6ms | Allocations: 1540)
+  [1m[36mTransaction Count (0.4ms)[0m  [1m[34mSELECT COUNT(*) FROM "transactions"[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_future_transaction_date)
+----------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_zero_amount)
+----------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.4ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------
+TransactionTest: test_should_persist_a_valid_transaction
+--------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.8ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:49.852883"], ["updated_at", "2023-11-08 01:11:49.852883"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_duplicated_transaction_ID)
+------------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.3ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:49.852883"], ["updated_at", "2023-11-08 01:11:49.852883"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(without_a_required_attribute)
+----------------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.2ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------------------------
+TransactionTest: test_should_set_the_has_cbk_after_creation
+-----------------------------------------------------------
+  [1m[36mTransaction Load (0.2ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTransaction Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTransaction Create (0.4ms)[0m  [1m[32mINSERT INTO "transactions" ("transaction_id", "merchant_id", "user_id", "card_number", "transaction_date", "transaction_amount", "device_id", "has_cbk", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "id"[0m  [["transaction_id", 35363455], ["merchant_id", 1], ["user_id", 1], ["card_number", "434505******9116"], ["transaction_date", "2023-11-07 15:22:55"], ["transaction_amount", 1.5], ["device_id", 1], ["has_cbk", false], ["created_at", "2023-11-08 01:11:49.852883"], ["updated_at", "2023-11-08 01:11:49.852883"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------------------------------------
+TransactionTest: test_should_not_persist_an_invalid_transaction_(with_negative_amount)
+--------------------------------------------------------------------------------------
+  [1m[36mTransaction Load (0.2ms)[0m  [1m[34mSELECT "transactions".* FROM "transactions" WHERE "transactions"."id" = $1 LIMIT $2[0m  [["id", 822834886], ["LIMIT", 1]]
+  [1m[36mTransaction Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "transactions" WHERE "transactions"."transaction_id" = $1 LIMIT $2[0m  [["transaction_id", 35363455], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
