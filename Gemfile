@@ -38,9 +38,6 @@ gem 'bootsnap', require: false
 # Group database records by day, week, month, etc
 gem 'groupdate'
 
-# Calculate descriptive statistics in enumerable objects
-gem 'descriptive-statistics'
-
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]

@@ -2,67 +2,103 @@ require 'test_helper'
 
 class TransactionsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @payload = transactions(:sample).attributes
-    @payload[:transaction_id] = Kernel.rand(Time.current.to_i)
-    @payload[:id] = nil
+    @params = transactions(:sample).attributes
+    @params[:transaction_id] = Kernel.rand(Time.current.to_i)
+    @params[:id] = nil
   end
 
-  test 'should persist a valid transaction' do
-    assert_difference('Transaction.count') do
-      post transactions_url, params: @payload, as: :json
+  test 'should persist a valid transaction and yield an approval' do
+    assert_changes('Transaction.count', 1) do
+      post transactions_url, params: @params, as: :json
     end
 
     assert_response :created
+
+    expected_json = {
+      'transaction_id' => @params[:transaction_id],
+      'recommendation' => 'approve'
+    }
+
+    assert_equal expected_json, JSON.parse(response.body)
   end
 
-  test 'should not persist an invalid transaction' do
-    @payload[:transaction_id] = nil
+  test 'should not persist an invalid transaction and yield a denial' do
+    @params[:transaction_id] = nil
 
-    assert_no_difference('Transaction.count') do
-      post transactions_url, params: @payload, as: :json
+    assert_no_changes('Transaction.count') do
+      post transactions_url, params: @params, as: :json
     end
 
     assert_response :unprocessable_entity
+
+    expected_json = {
+      'transaction_id' => @params[:transaction_id],
+      'recommendation' => 'deny'
+    }
+
+    assert_equal expected_json, JSON.parse(response.body)
   end
 
-  test 'should reject an transaction if the previous transaction from the same user was charged back' do
-    transaction = Transaction.new(@payload)
-    transaction.has_cbk = true
-    transaction.save!
+  test 'should persist an transaction and deny it if a recent one from the same user was charged back' do
+    @params[:transaction_id] = Kernel.rand(Time.current.to_i)
 
-    assert_no_difference('Transaction.count') do
-      post transactions_url, params: @payload, as: :json
+    assert_changes('Transaction.count', 1) do
+      Transaction.create!(@params.merge(has_cbk: true))
+      post transactions_url, params: @params, as: :json
     end
+
+    assert_response :unprocessable_entity
+
+    expected_json = {
+      'transaction_id' => @params[:transaction_id],
+      'recommendation' => 'deny'
+    }
+
+    assert_equal expected_json, JSON.parse(response.body)
   end
 
-  test 'should reject an transaction if the expected number of transactions per month was exceeded' do
-    (1..6).each do |month|
-      @payload[:transaction_id] = Kernel.rand(Time.current.to_i)
-
-      transaction = Transaction.new(@payload)
-      transaction.created_at = month.months.ago.beginning_of_month
-      transaction.save!
-    end
-
-    assert_no_difference('Transaction.count') do
-      post transactions_url, params: @payload, as: :json
-    end
-  end
-
-  test 'should reject an transaction if the expected amount of transactions per month was exceeded' do
-    (1..6).each do |month|
-      3.times do
-        @payload[:transaction_id] = Kernel.rand(Time.current.to_i)
-
-        transaction = Transaction.new(@payload)
-        transaction.created_at = month.months.ago.beginning_of_month
-        transaction.save!
+  test 'should persist an transaction and deny it if the expected number of transactions per month was exceeded' do
+    assert_changes('Transaction.count', 1) do
+      (1..6).each do |month_number|
+        @params[:transaction_id] = Kernel.rand(Time.current.to_i)
+        Transaction.create!(@params.merge(created_at: month_number.months.ago.beginning_of_month))
       end
+
+      @params[:transaction_id] = Kernel.rand(Time.current.to_i)
+
+      post transactions_url, params: @params, as: :json
     end
 
-    assert_no_difference('Transaction.count') do
-      @payload[:transaction_amount] = 100.0
-      post transactions_url, params: @payload, as: :json
+    assert_response :unprocessable_entity
+
+    expected_json = {
+      'transaction_id' => @params[:transaction_id],
+      'recommendation' => 'deny'
+    }
+
+    assert_equal expected_json, JSON.parse(response.body)
+  end
+
+  test 'should persist an transaction and deny it if the expected total amount of transactions per month was exceeded' do
+    assert_changes('Transaction.count', 1) do
+      (1..6).each do |month|
+        3.times do
+          @params[:transaction_id] = Kernel.rand(Time.current.to_i)
+          Transaction.create!(@params.merge(created_at: month.months.ago.beginning_of_month))
+        end
+      end
+
+      @params[:transaction_id] = Kernel.rand(Time.current.to_i)
+      @params[:transaction_amount] = 100.0
+
+      post transactions_url, params: @params, as: :json
     end
+
+    assert_response :unprocessable_entity
+
+    expected_json = {
+      'transaction_id' => @params[:transaction_id],
+      'recommendation' => 'deny'
+    }
   end
 end
