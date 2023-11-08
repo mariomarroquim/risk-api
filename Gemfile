@@ -44,6 +44,9 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
 
+  # Check gems for security issues
+  gem 'bundler-audit'
+
   # Check code for security issues
   gem 'brakeman', require: false
 
