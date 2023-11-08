@@ -6,6 +6,6 @@ sample:
   user_id: 1
   card_number: '434505******9116'
   transaction_date: 2023-11-07 15:22:55
-  transaction_amount: 1.5
+  transaction_amount: 10.0
   device_id: 1
   has_cbk: false

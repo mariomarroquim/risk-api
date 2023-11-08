@@ -1,12 +1,15 @@
 class TransactionsController < ApplicationController
-  # TODO: Fix input/output accordingly to the specs
   def create
     @transaction = Transaction.new(transaction_params)
 
-    if @transaction.save
-      render json: @transaction, status: :created
+    result = { transaction_id: @transaction.transaction_id }
+
+    if @transaction.save && !DetectFraud.call(@transaction)
+      render json: result.merge(recommendation: 'approve'), status: :created
     else
-      render json: @transaction.errors, status: :unprocessable_entity
+      # TODO: Use a more sofisticated service object approach to better express
+      # different outputs via more informative HTTP status codes.
+      render json: result.merge(recommendation: 'deny'), status: :unprocessable_entity
     end
   end
 
