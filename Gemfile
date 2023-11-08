@@ -46,6 +46,12 @@ group :development do
 
   # Check code for security issues
   gem 'brakeman', require: false
+
+  # Check code for quality
+  gem 'rubocop', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-thread_safety'
 end
 
 group :production do

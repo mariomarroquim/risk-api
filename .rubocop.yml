@@ -1,0 +1,22 @@
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-thread_safety
+
+AllCops:
+  NewCops: enable
+  Include:
+    - 'app/channels/**/*'
+    - 'app/controllers/**/*'
+    - 'app/jobs/**/*'
+    - 'app/mailers/**/*'
+    - 'app/models/**/*'
+
+Lint/EmptyFile:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
