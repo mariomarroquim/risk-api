@@ -1,4 +1,4 @@
-# Cloudwalk Risk API
+# Risk API
 
 This is an example of a Ruby on Rails web service (API-only mode) to check transactions for fraud.
 
